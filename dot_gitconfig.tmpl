@@ -5,8 +5,8 @@
     editor = nvim
     # Use global gitignore
     excludesFile = ~/.config/git/ignore
-    # Improve diff output
-    pager = less -FRX
+    # Use delta for beautiful diffs; fall back to less
+    pager = delta --dark 2>/dev/null || less -FRX
     # Prevent showing files with non-ASCII names as octal
     quotePath = false
     # Normalize line endings
@@ -218,6 +218,28 @@
 
     # Show git aliases
     aliases = config --get-regexp alias
+
+[interactive]
+    diffFilter = delta --color-only 2>/dev/null || cat
+
+[delta]
+    navigate = true
+    side-by-side = true
+    line-numbers = true
+    hyperlinks = true
+    # Tokyo Night theme
+    syntax-theme = tokyonight_night
+    minus-style = "syntax #37222c"
+    minus-emph-style = "syntax #713137"
+    plus-style = "syntax #20303b"
+    plus-emph-style = "syntax #2c5a66"
+    line-numbers-minus-style = "#f7768e"
+    line-numbers-plus-style = "#9ece6a"
+    line-numbers-zero-style = "#565f89"
+    hunk-header-decoration-style = "blue box"
+    hunk-header-style = "file line-number syntax"
+    file-style = "bold yellow ul"
+    file-decoration-style = "none"
 
 # Safe directories (prevent "dubious ownership" errors)
 [safe]

@@ -1,0 +1,50 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Install CLI tools on macOS via Homebrew
+# Tools: fzf, ripgrep, fd, bat, eza, zoxide, delta
+set -euo pipefail
+
+# Ensure Homebrew is available
+if ! command -v brew &>/dev/null; then
+    echo "Error: Homebrew is required. Install from https://brew.sh"
+    exit 1
+fi
+
+TOOLS=(
+    fzf
+    ripgrep
+    fd
+    bat
+    eza
+    zoxide
+    git-delta
+)
+
+installed=()
+skipped=()
+
+for tool in "${TOOLS[@]}"; do
+    if brew list "$tool" &>/dev/null; then
+        skipped+=("$tool")
+    else
+        echo "Installing $tool..."
+        brew install "$tool"
+        installed+=("$tool")
+    fi
+done
+
+# Run fzf post-install to set up shell integration (non-destructive)
+if [[ " ${installed[*]} " == *" fzf "* ]]; then
+    "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-zsh --no-fish 2>/dev/null || true
+fi
+
+# ── Summary ─────────────────────────────────────────────────────────────────
+echo ""
+echo "=== CLI Tools Setup Complete ==="
+if [[ ${#installed[@]} -gt 0 ]]; then
+    echo "Installed: ${installed[*]}"
+fi
+if [[ ${#skipped[@]} -gt 0 ]]; then
+    echo "Already present: ${skipped[*]}"
+fi
+{{ end -}}

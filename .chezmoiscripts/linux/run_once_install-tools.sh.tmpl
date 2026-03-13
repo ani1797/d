@@ -1,0 +1,168 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install CLI tools on Linux (Debian/Ubuntu, Fedora/RHEL, Arch, Alpine) and WSL
+# Tools: fzf, ripgrep, fd, bat, eza, zoxide, delta
+set -euo pipefail
+
+installed=()
+skipped=()
+
+install_pkg() {
+    local name="$1"
+    shift
+    # $@ = package names to try in order per package manager
+    if command -v "$name" &>/dev/null; then
+        skipped+=("$name")
+        return 0
+    fi
+    echo "Installing $name..."
+    return 1
+}
+
+install_with_pm() {
+    local apt_pkg="${1:-}" dnf_pkg="${2:-}" pacman_pkg="${3:-}" apk_pkg="${4:-}" zypper_pkg="${5:-}"
+    if command -v apt-get &>/dev/null && [[ -n "$apt_pkg" ]]; then
+        sudo apt-get install -y -qq "$apt_pkg"
+    elif command -v dnf &>/dev/null && [[ -n "$dnf_pkg" ]]; then
+        sudo dnf install -y -q "$dnf_pkg"
+    elif command -v yum &>/dev/null && [[ -n "$dnf_pkg" ]]; then
+        sudo yum install -y -q "$dnf_pkg"
+    elif command -v pacman &>/dev/null && [[ -n "$pacman_pkg" ]]; then
+        sudo pacman -S --noconfirm --needed "$pacman_pkg"
+    elif command -v apk &>/dev/null && [[ -n "$apk_pkg" ]]; then
+        sudo apk add --no-cache "$apk_pkg"
+    elif command -v zypper &>/dev/null && [[ -n "$zypper_pkg" ]]; then
+        sudo zypper install -y "$zypper_pkg"
+    else
+        echo "  Warning: No supported package manager found for this package."
+        return 1
+    fi
+}
+
+# Update package index once (apt only)
+if command -v apt-get &>/dev/null; then
+    sudo apt-get update -qq
+fi
+
+# ── fzf ─────────────────────────────────────────────────────────────────────
+if ! install_pkg fzf; then
+    if install_with_pm fzf fzf fzf fzf fzf; then
+        installed+=("fzf")
+    else
+        # Fallback: install from git
+        if [[ ! -d "$HOME/.fzf" ]]; then
+            git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
+        fi
+        "$HOME/.fzf/install" --bin
+        mkdir -p "$HOME/.local/bin"
+        ln -sf "$HOME/.fzf/bin/fzf" "$HOME/.local/bin/fzf"
+        installed+=("fzf (from git)")
+    fi
+fi
+
+# ── ripgrep ─────────────────────────────────────────────────────────────────
+if ! install_pkg rg; then
+    if install_with_pm ripgrep ripgrep ripgrep ripgrep ripgrep; then
+        installed+=("ripgrep")
+    fi
+fi
+
+# ── fd ──────────────────────────────────────────────────────────────────────
+if ! install_pkg fd; then
+    # fd binary is called fd-find on Debian/Ubuntu, fdfind → fd symlink needed
+    if command -v apt-get &>/dev/null; then
+        sudo apt-get install -y -qq fd-find
+        # Create fd symlink (Debian/Ubuntu ships it as fdfind)
+        if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
+            mkdir -p "$HOME/.local/bin"
+            ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+        fi
+        installed+=("fd")
+    elif install_with_pm "" fd-find fd fd fd; then
+        installed+=("fd")
+    fi
+fi
+
+# ── bat ─────────────────────────────────────────────────────────────────────
+if ! install_pkg bat; then
+    if command -v apt-get &>/dev/null; then
+        sudo apt-get install -y -qq bat
+        # Create bat symlink (Debian/Ubuntu ships it as batcat)
+        if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+            mkdir -p "$HOME/.local/bin"
+            ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+        fi
+        installed+=("bat")
+    elif install_with_pm "" bat bat bat bat; then
+        installed+=("bat")
+    fi
+fi
+
+# ── eza ─────────────────────────────────────────────────────────────────────
+if ! install_pkg eza; then
+    if command -v apt-get &>/dev/null; then
+        # eza needs a separate repo on Debian/Ubuntu
+        if ! apt-cache show eza &>/dev/null 2>&1; then
+            sudo mkdir -p /etc/apt/keyrings
+            wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null || true
+            echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
+            sudo apt-get update -qq
+        fi
+        sudo apt-get install -y -qq eza && installed+=("eza")
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y -q eza && installed+=("eza")
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -S --noconfirm --needed eza && installed+=("eza")
+    elif command -v cargo &>/dev/null; then
+        cargo install eza && installed+=("eza (cargo)")
+    else
+        echo "  Warning: eza not available via package manager. Install manually or via cargo."
+    fi
+fi
+
+# ── zoxide ──────────────────────────────────────────────────────────────────
+if ! install_pkg zoxide; then
+    if install_with_pm zoxide zoxide zoxide zoxide zoxide; then
+        installed+=("zoxide")
+    else
+        # Fallback: install script
+        if command -v curl &>/dev/null; then
+            curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+            installed+=("zoxide (script)")
+        fi
+    fi
+fi
+
+# ── delta (git-delta) ───────────────────────────────────────────────────────
+if ! install_pkg delta; then
+    if command -v apt-get &>/dev/null; then
+        # delta is not in default Ubuntu repos — install from GitHub release
+        DELTA_VERSION=$(curl -sSf https://api.github.com/repos/dandavison/delta/releases/latest | grep -oP '"tag_name":\s*"\K[^"]+')
+        DELTA_DEB="git-delta_${DELTA_VERSION}_amd64.deb"
+        ARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
+        DELTA_DEB="git-delta_${DELTA_VERSION}_${ARCH}.deb"
+        curl -sSfLO "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/${DELTA_DEB}"
+        sudo dpkg -i "$DELTA_DEB"
+        rm -f "$DELTA_DEB"
+        installed+=("delta")
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y -q git-delta && installed+=("delta")
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -S --noconfirm --needed git-delta && installed+=("delta")
+    elif command -v cargo &>/dev/null; then
+        cargo install git-delta && installed+=("delta (cargo)")
+    else
+        echo "  Warning: delta not available via package manager. Install manually or via cargo."
+    fi
+fi
+
+# ── Summary ─────────────────────────────────────────────────────────────────
+echo ""
+echo "=== CLI Tools Setup Complete ==="
+if [[ ${#installed[@]} -gt 0 ]]; then
+    echo "Installed: ${installed[*]}"
+fi
+if [[ ${#skipped[@]} -gt 0 ]]; then
+    echo "Already present: ${skipped[*]}"
+fi
+{{ end -}}

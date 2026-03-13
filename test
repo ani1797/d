@@ -61,11 +61,11 @@ docker run $DOCKER_FLAGS \
         echo ''
         echo '── Installation complete ──'
         if [ -t 0 ]; then
-            echo 'Launching zsh...'
-            exec zsh -l
+            echo 'Launching fish...'
+            exec fish -l
         else
-            echo 'Non-interactive mode — verifying zsh is available.'
-            zsh --version
+            echo 'Non-interactive mode — verifying fish is available.'
+            fish --version
             echo '=== TEST PASSED ==='
         fi
     "

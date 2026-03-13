@@ -1,0 +1,49 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install CLI tools on Windows
+# Tools: fzf, ripgrep, fd, bat, eza, zoxide, delta
+$ErrorActionPreference = "Stop"
+
+$tools = @(
+    @{ Name = "fzf";     Winget = "junegunn.fzf";                Scoop = "fzf";       Choco = "fzf" }
+    @{ Name = "rg";      Winget = "BurntSushi.ripgrep.MSVC";     Scoop = "ripgrep";   Choco = "ripgrep" }
+    @{ Name = "fd";      Winget = "sharkdp.fd";                  Scoop = "fd";        Choco = "fd" }
+    @{ Name = "bat";     Winget = "sharkdp.bat";                 Scoop = "bat";       Choco = "bat" }
+    @{ Name = "eza";     Winget = "eza-community.eza";           Scoop = "eza";       Choco = "" }
+    @{ Name = "zoxide";  Winget = "ajeetdsouza.zoxide";          Scoop = "zoxide";    Choco = "zoxide" }
+    @{ Name = "delta";   Winget = "dandavison.delta";            Scoop = "delta";     Choco = "git-delta" }
+)
+
+$installed = @()
+$skipped = @()
+
+foreach ($tool in $tools) {
+    if (Get-Command $tool.Name -ErrorAction SilentlyContinue) {
+        $skipped += $tool.Name
+        continue
+    }
+    Write-Host "Installing $($tool.Name)..."
+
+    if ((Get-Command winget -ErrorAction SilentlyContinue) -and $tool.Winget) {
+        winget install --id $tool.Winget --accept-source-agreements --accept-package-agreements --silent
+        $installed += $tool.Name
+    } elseif ((Get-Command scoop -ErrorAction SilentlyContinue) -and $tool.Scoop) {
+        scoop install $tool.Scoop
+        $installed += $tool.Name
+    } elseif ((Get-Command choco -ErrorAction SilentlyContinue) -and $tool.Choco) {
+        choco install $tool.Choco -y
+        $installed += $tool.Name
+    } else {
+        Write-Warning "No supported package manager found for $($tool.Name). Install manually."
+    }
+}
+
+# ── Summary ─────────────────────────────────────────────────────────────────
+Write-Host ""
+Write-Host "=== CLI Tools Setup Complete ==="
+if ($installed.Count -gt 0) {
+    Write-Host "Installed: $($installed -join ', ')"
+}
+if ($skipped.Count -gt 0) {
+    Write-Host "Already present: $($skipped -join ', ')"
+}
+{{ end -}}

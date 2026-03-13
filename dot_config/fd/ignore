@@ -1,0 +1,16 @@
+# fd global ignore patterns
+.git/
+node_modules/
+.venv/
+__pycache__/
+*.min.js
+*.min.css
+*.map
+*.lock
+target/
+dist/
+build/
+.terraform/
+.cache/
+.tox/
+*.egg-info/

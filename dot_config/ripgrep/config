@@ -1,0 +1,33 @@
+# ripgrep configuration
+# Set via RIPGREP_CONFIG_PATH in shell
+
+# Search settings
+--smart-case
+--max-columns=200
+--max-columns-preview
+
+# Colors (Tokyo Night inspired)
+--colors=line:fg:yellow
+--colors=line:style:bold
+--colors=path:fg:blue
+--colors=path:style:bold
+--colors=match:fg:magenta
+--colors=match:style:bold
+
+# File type associations
+--type-add=web:*.{html,css,scss,js,jsx,ts,tsx,vue,svelte}
+--type-add=config:*.{json,jsonc,yaml,yml,toml,ini,conf}
+
+# Ignore patterns
+--glob=!.git/
+--glob=!node_modules/
+--glob=!.venv/
+--glob=!__pycache__/
+--glob=!*.min.js
+--glob=!*.min.css
+--glob=!*.map
+--glob=!*.lock
+--glob=!target/
+--glob=!dist/
+--glob=!build/
+--glob=!.terraform/

@@ -61,6 +61,7 @@ return {
         { "<leader>f", group = "find" },
         { "<leader>h", group = "git hunks" },
         { "<leader>q", group = "quit" },
+        { "<leader>x", group = "diagnostics/quickfix" },
       },
     },
   },
