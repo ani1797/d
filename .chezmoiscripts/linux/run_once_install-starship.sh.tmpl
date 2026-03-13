@@ -1,0 +1,36 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install starship prompt on Linux (Debian/Ubuntu, Fedora/RHEL, Arch) and WSL
+set -euo pipefail
+
+if command -v starship &>/dev/null; then
+    echo "starship is already installed."
+    exit 0
+fi
+
+echo "Installing starship..."
+if command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm --needed starship
+elif command -v apt-get &>/dev/null || command -v dnf &>/dev/null || command -v apk &>/dev/null; then
+    # starship is not yet in most apt/dnf/apk repos — fall through to install script
+    if command -v curl &>/dev/null; then
+        sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --yes
+    elif command -v wget &>/dev/null; then
+        sh -c "$(wget -qO- https://starship.rs/install.sh)" -- --yes
+    else
+        echo "Error: curl or wget is required to install starship."
+        exit 1
+    fi
+else
+    if command -v curl &>/dev/null; then
+        sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --yes
+    elif command -v wget &>/dev/null; then
+        sh -c "$(wget -qO- https://starship.rs/install.sh)" -- --yes
+    else
+        echo "Error: No supported package manager found and curl/wget unavailable."
+        exit 1
+    fi
+fi
+
+echo "starship installed successfully."
+{{ end -}}

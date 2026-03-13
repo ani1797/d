@@ -1,0 +1,23 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install direnv on Windows
+$ErrorActionPreference = "Stop"
+
+if (Get-Command direnv -ErrorAction SilentlyContinue) {
+    Write-Host "direnv is already installed."
+    exit 0
+}
+
+Write-Host "Installing direnv..."
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+    winget install --id direnv.direnv --accept-source-agreements --accept-package-agreements --silent
+} elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
+    scoop install direnv
+} elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+    choco install direnv -y
+} else {
+    Write-Error "No supported package manager found (winget/scoop/choco). Install direnv manually."
+    exit 1
+}
+
+Write-Host "direnv installed successfully."
+{{ end -}}

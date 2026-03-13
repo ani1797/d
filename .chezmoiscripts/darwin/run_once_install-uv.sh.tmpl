@@ -1,0 +1,19 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Install uv (Python package manager) on macOS
+set -euo pipefail
+
+if command -v uv &>/dev/null; then
+    echo "uv is already installed."
+    exit 0
+fi
+
+echo "Installing uv..."
+if command -v brew &>/dev/null; then
+    brew install uv
+else
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+
+echo "uv installed successfully."
+{{ end -}}

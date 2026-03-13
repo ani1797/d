@@ -1,0 +1,17 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Install bash, zsh, and fish shells on macOS
+# macOS ships with bash and zsh, but brew versions are more current.
+set -euo pipefail
+
+if ! command -v brew &>/dev/null; then
+    echo "Error: Homebrew is required to install shells on macOS."
+    echo "Install Homebrew: https://brew.sh"
+    exit 1
+fi
+
+echo "Installing/upgrading shells via Homebrew..."
+brew install bash zsh fish
+
+echo "Shells installed successfully."
+{{ end -}}

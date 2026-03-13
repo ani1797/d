@@ -1,0 +1,40 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install fnm (Fast Node Manager) on Linux and WSL
+set -euo pipefail
+
+if command -v fnm &>/dev/null; then
+    echo "fnm is already installed."
+    exit 0
+fi
+
+echo "Installing fnm..."
+if command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm --needed fnm
+else
+    # fnm installer downloads a .zip — ensure unzip is available
+    if ! command -v unzip &>/dev/null; then
+        echo "Installing unzip (required by fnm installer)..."
+        if command -v apt-get &>/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq unzip
+        elif command -v dnf &>/dev/null; then
+            sudo dnf install -y -q unzip
+        elif command -v yum &>/dev/null; then
+            sudo yum install -y -q unzip
+        elif command -v apk &>/dev/null; then
+            sudo apk add --quiet unzip
+        fi
+    fi
+
+    if command -v curl &>/dev/null; then
+        curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+    elif command -v wget &>/dev/null; then
+        wget -qO- https://fnm.vercel.app/install | bash -s -- --skip-shell
+    else
+        echo "Error: curl or wget is required to install fnm."
+        exit 1
+    fi
+fi
+
+echo "fnm installed successfully."
+{{ end -}}

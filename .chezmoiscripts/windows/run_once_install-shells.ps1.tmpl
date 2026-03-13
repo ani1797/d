@@ -1,0 +1,33 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install PowerShell (latest), Git Bash (via Git for Windows), and fish shell on Windows
+# Note: zsh is not natively available on Windows; Git Bash provides a bash-like shell.
+$ErrorActionPreference = "Stop"
+
+function Install-IfMissing {
+    param([string]$Name, [string]$WingetId, [string]$ScoopPkg, [string]$ChocoPkg)
+
+    if (Get-Command $Name -ErrorAction SilentlyContinue) {
+        Write-Host "$Name is already installed."
+        return
+    }
+
+    Write-Host "Installing $Name..."
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        winget install --id $WingetId --accept-source-agreements --accept-package-agreements --silent
+    } elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
+        scoop install $ScoopPkg
+    } elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+        choco install $ChocoPkg -y
+    } else {
+        Write-Warning "No supported package manager found. Install $Name manually."
+    }
+}
+
+# Git for Windows includes Git Bash (bash + zsh-like environment)
+Install-IfMissing -Name "git" -WingetId "Git.Git" -ScoopPkg "git" -ChocoPkg "git"
+
+# Latest PowerShell (pwsh)
+Install-IfMissing -Name "pwsh" -WingetId "Microsoft.PowerShell" -ScoopPkg "pwsh" -ChocoPkg "powershell-core"
+
+Write-Host "Shells installed successfully."
+{{ end -}}

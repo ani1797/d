@@ -1,0 +1,19 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Install fnm (Fast Node Manager) on macOS
+set -euo pipefail
+
+if command -v fnm &>/dev/null; then
+    echo "fnm is already installed."
+    exit 0
+fi
+
+echo "Installing fnm..."
+if command -v brew &>/dev/null; then
+    brew install fnm
+else
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+fi
+
+echo "fnm installed successfully."
+{{ end -}}

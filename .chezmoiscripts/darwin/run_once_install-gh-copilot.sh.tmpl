@@ -1,0 +1,27 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Install GitHub CLI and Copilot extension on macOS
+set -euo pipefail
+
+# ── Install GitHub CLI ──────────────────────────────────────────────────────
+if ! command -v gh &>/dev/null; then
+    echo "Installing GitHub CLI..."
+    if command -v brew &>/dev/null; then
+        brew install gh
+    else
+        echo "Error: Homebrew is required to install gh on macOS."
+        echo "Install Homebrew: https://brew.sh"
+        exit 1
+    fi
+fi
+
+# ── Install Copilot CLI extension ───────────────────────────────────────────
+if ! gh extension list 2>/dev/null | grep -q "gh-copilot"; then
+    echo "Installing GitHub Copilot CLI extension..."
+    gh extension install github/gh-copilot || true
+else
+    echo "GitHub Copilot CLI extension is already installed."
+fi
+
+echo "GitHub CLI + Copilot installed successfully."
+{{ end -}}

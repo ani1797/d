@@ -1,0 +1,23 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install starship prompt on Windows
+$ErrorActionPreference = "Stop"
+
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Write-Host "starship is already installed."
+    exit 0
+}
+
+Write-Host "Installing starship..."
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+    winget install --id Starship.Starship --accept-source-agreements --accept-package-agreements --silent
+} elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
+    scoop install starship
+} elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+    choco install starship -y
+} else {
+    Write-Error "No supported package manager found (winget/scoop/choco). Install starship manually."
+    exit 1
+}
+
+Write-Host "starship installed successfully."
+{{ end -}}

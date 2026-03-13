@@ -1,0 +1,30 @@
+# ~/.bashrc
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# XDG Base Directory defaults
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# Ensure ~/.local/bin is in PATH
+[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
+
+# Initialize bash completion
+if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+    source /usr/share/bash-completion/bash_completion
+elif [[ -f /etc/bash_completion ]]; then
+    source /etc/bash_completion
+fi
+
+# Source all conf.d scripts
+if [[ -d "$XDG_CONFIG_HOME/bash/conf.d" ]]; then
+    for f in "$XDG_CONFIG_HOME/bash/conf.d"/*.bash; do
+        [[ -f "$f" ]] && source "$f"
+    done
+    unset f
+fi
+
+# Source local overrides
+if [[ -f "$HOME/.bashrc.local" ]]; then
+    source "$HOME/.bashrc.local"
+fi

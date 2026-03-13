@@ -1,0 +1,20 @@
+README.md
+LICENSE
+.github/
+install
+install.ps1
+test
+.devcontainer/
+
+{{- if ne .chezmoi.os "windows" }}
+Documents/
+{{- end }}
+
+{{- if eq .chezmoi.os "windows" }}
+.bashrc
+.zshrc
+.config/fish/
+.config/bash/
+.config/zsh/
+.config/direnv/
+{{- end }}

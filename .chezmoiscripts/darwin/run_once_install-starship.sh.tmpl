@@ -1,0 +1,19 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Install starship prompt on macOS
+set -euo pipefail
+
+if command -v starship &>/dev/null; then
+    echo "starship is already installed."
+    exit 0
+fi
+
+echo "Installing starship..."
+if command -v brew &>/dev/null; then
+    brew install starship
+else
+    sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --yes
+fi
+
+echo "starship installed successfully."
+{{ end -}}

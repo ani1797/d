@@ -1,0 +1,7 @@
+# uv requires a virtual environment by default for `uv pip` commands.
+# Pass --system explicitly to override.
+required-version = ">= 0.6"
+
+[pip]
+compile-bytecode = true
+strict = true

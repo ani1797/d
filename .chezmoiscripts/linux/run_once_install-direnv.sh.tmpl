@@ -1,0 +1,28 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install direnv on Linux (Debian/Ubuntu, Fedora/RHEL, Arch) and WSL
+set -euo pipefail
+
+if command -v direnv &>/dev/null; then
+    echo "direnv is already installed."
+    exit 0
+fi
+
+echo "Installing direnv..."
+if command -v apt-get &>/dev/null; then
+    sudo apt-get update -qq && sudo apt-get install -y -qq direnv
+elif command -v dnf &>/dev/null; then
+    sudo dnf install -y -q direnv
+elif command -v yum &>/dev/null; then
+    sudo yum install -y -q direnv
+elif command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm --needed direnv
+elif command -v apk &>/dev/null; then
+    sudo apk add --quiet direnv
+else
+    echo "Error: No supported package manager found. Install direnv manually."
+    exit 1
+fi
+
+echo "direnv installed successfully."
+{{ end -}}

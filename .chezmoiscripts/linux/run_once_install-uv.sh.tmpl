@@ -1,0 +1,36 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install uv (Python package manager) on Linux and WSL
+set -euo pipefail
+
+if command -v uv &>/dev/null; then
+    echo "uv is already installed."
+    exit 0
+fi
+
+echo "Installing uv..."
+if command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm --needed uv
+elif command -v apt-get &>/dev/null || command -v dnf &>/dev/null || command -v apk &>/dev/null; then
+    # uv is not yet in most apt/dnf/apk repos — fall through to install script
+    if command -v curl &>/dev/null; then
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    elif command -v wget &>/dev/null; then
+        wget -qO- https://astral.sh/uv/install.sh | sh
+    else
+        echo "Error: curl or wget is required to install uv."
+        exit 1
+    fi
+else
+    if command -v curl &>/dev/null; then
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    elif command -v wget &>/dev/null; then
+        wget -qO- https://astral.sh/uv/install.sh | sh
+    else
+        echo "Error: No supported package manager found and curl/wget unavailable."
+        exit 1
+    fi
+fi
+
+echo "uv installed successfully."
+{{ end -}}

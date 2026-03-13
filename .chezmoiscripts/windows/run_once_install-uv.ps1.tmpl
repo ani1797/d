@@ -1,0 +1,20 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install uv (Python package manager) on Windows
+$ErrorActionPreference = "Stop"
+
+if (Get-Command uv -ErrorAction SilentlyContinue) {
+    Write-Host "uv is already installed."
+    exit 0
+}
+
+Write-Host "Installing uv..."
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+    winget install --id astral-sh.uv --accept-source-agreements --accept-package-agreements --silent
+} elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
+    scoop install uv
+} else {
+    irm https://astral.sh/uv/install.ps1 | iex
+}
+
+Write-Host "uv installed successfully."
+{{ end -}}

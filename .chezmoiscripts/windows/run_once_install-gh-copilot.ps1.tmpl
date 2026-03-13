@@ -1,0 +1,30 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install GitHub CLI and Copilot extension on Windows
+$ErrorActionPreference = "Stop"
+
+# ── Install GitHub CLI ──────────────────────────────────────────────────────
+if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
+    Write-Host "Installing GitHub CLI..."
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        winget install --id GitHub.cli --accept-source-agreements --accept-package-agreements --silent
+    } elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
+        scoop install gh
+    } elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+        choco install gh -y
+    } else {
+        Write-Error "No supported package manager found (winget/scoop/choco). Install gh manually."
+        exit 1
+    }
+}
+
+# ── Install Copilot CLI extension ───────────────────────────────────────────
+$copilotInstalled = gh extension list 2>$null | Select-String "gh-copilot"
+if (-not $copilotInstalled) {
+    Write-Host "Installing GitHub Copilot CLI extension..."
+    gh extension install github/gh-copilot
+} else {
+    Write-Host "GitHub Copilot CLI extension is already installed."
+}
+
+Write-Host "GitHub CLI + Copilot installed successfully."
+{{ end -}}

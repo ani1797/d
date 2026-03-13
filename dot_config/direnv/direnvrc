@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# direnvrc - Custom direnv configuration
+#
+# Custom layout functions are now organized as separate modules in lib/
+# Direnv automatically sources all files in ~/.config/direnv/lib/
+#
+# Available layouts:
+# - layout auto        : Auto-detect project type and load .env/.oprc files
+# - layout uv          : Python with UV package manager
+# - layout rust        : Rust project environment with cargo
+# - layout terraform   : Terraform version management with tfenv
+# - layout precommit   : Pre-commit hooks integration
+#
+# Built-in layouts (from direnv stdlib):
+# - layout python      : Python virtualenv
+# - layout node        : Node.js project (adds node_modules/.bin to PATH)
+# - layout go          : Go project (sets GOPATH)
+# - layout perl        : Perl project
+# - layout php         : PHP project
+#
+# See: https://direnv.net/man/direnv-stdlib.1.html

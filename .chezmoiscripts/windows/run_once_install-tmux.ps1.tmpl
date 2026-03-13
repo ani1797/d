@@ -1,0 +1,9 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install tmux is not natively available on Windows.
+# If running in WSL, the Linux script handles installation.
+$ErrorActionPreference = "Stop"
+
+Write-Host "tmux is not natively supported on Windows."
+Write-Host "Use WSL (Windows Subsystem for Linux) to run tmux."
+Write-Host "The Linux install script will handle tmux installation inside WSL."
+{{ end -}}

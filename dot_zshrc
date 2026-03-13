@@ -1,0 +1,27 @@
+# ~/.zshrc
+
+# If not running interactively, don't do anything
+[[ -o interactive ]] || return
+
+# XDG Base Directory defaults
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# Ensure ~/.local/bin is in PATH
+[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
+
+# Initialize completion system
+autoload -Uz compinit
+compinit -C
+
+# Source all conf.d scripts
+if [[ -d "$XDG_CONFIG_HOME/zsh/conf.d" ]]; then
+    for f in "$XDG_CONFIG_HOME/zsh/conf.d"/*.zsh(N); do
+        [[ -f "$f" ]] && source "$f"
+    done
+    unset f
+fi
+
+# Source local overrides
+if [[ -f "$HOME/.zshrc.local" ]]; then
+    source "$HOME/.zshrc.local"
+fi

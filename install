@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# install - Non-interactive dotfiles bootstrap for Linux/macOS/WSL
+#
+# Primary target: GitHub Codespaces (auto-detects GITHUB_USER and git config).
+# Also works standalone with explicit environment variables.
+#
+# Only installs prerequisites (curl, chezmoi) and applies dotfiles.
+# Tool-specific installs (starship, direnv, gh copilot) are handled by
+# chezmoi run_once_ scripts after apply.
+#
+# Usage:
+#   ./install                          # in Codespaces (auto-detects name/email)
+#   GIT_AUTHOR_NAME="X" GIT_AUTHOR_EMAIL="x@y" ./install  # override explicitly
+#
+# Environment variables (checked in order):
+#   GIT_AUTHOR_NAME   / GIT_COMMITTER_NAME  / git config user.name   → name
+#   GIT_AUTHOR_EMAIL  / GIT_COMMITTER_EMAIL / git config user.email  → email
+#   DOTFILES_REPO     - Chezmoi source repo (default: current directory)
+#
+set -euo pipefail
+
+# ── Resolve name and email ──────────────────────────────────────────────────
+DOTFILES_NAME="${GIT_AUTHOR_NAME:-${GIT_COMMITTER_NAME:-$(git config user.name 2>/dev/null || true)}}"
+DOTFILES_EMAIL="${GIT_AUTHOR_EMAIL:-${GIT_COMMITTER_EMAIL:-$(git config user.email 2>/dev/null || true)}}"
+
+if [[ -z "${DOTFILES_NAME:-}" || -z "${DOTFILES_EMAIL:-}" ]]; then
+    echo "Error: Could not determine name and email."
+    echo ""
+    echo "Set them via environment variables or git config:"
+    echo "  GIT_AUTHOR_NAME=\"Your Name\" GIT_AUTHOR_EMAIL=\"you@example.com\" ./install"
+    exit 1
+fi
+
+DOTFILES_REPO="${DOTFILES_REPO:-}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "${CODESPACES:-}" == "true" ]]; then
+    echo "Detected GitHub Codespaces environment."
+fi
+echo "Name:  $DOTFILES_NAME"
+echo "Email: $DOTFILES_EMAIL"
+
+# ── Ensure curl is available ────────────────────────────────────────────────
+if ! command -v curl &>/dev/null; then
+    echo "Installing curl..."
+    if command -v apt-get &>/dev/null; then
+        sudo apt-get update -qq && sudo apt-get install -y -qq curl
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y -q curl
+    elif command -v yum &>/dev/null; then
+        sudo yum install -y -q curl
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -S --noconfirm curl
+    elif command -v apk &>/dev/null; then
+        sudo apk add --quiet curl
+    else
+        echo "Error: curl is required. Install it manually."
+        exit 1
+    fi
+fi
+
+# ── Install chezmoi ─────────────────────────────────────────────────────────
+if ! command -v chezmoi &>/dev/null; then
+    echo "Installing chezmoi..."
+    sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# ── Pre-populate chezmoi config to avoid prompts ────────────────────────────
+CHEZMOI_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
+mkdir -p "$CHEZMOI_CONFIG_DIR"
+if [[ ! -f "$CHEZMOI_CONFIG_DIR/chezmoi.toml" ]]; then
+    cat > "$CHEZMOI_CONFIG_DIR/chezmoi.toml" <<EOF
+[data]
+    name = "$DOTFILES_NAME"
+    email = "$DOTFILES_EMAIL"
+EOF
+fi
+
+# ── Apply dotfiles (run_once_ scripts handle tool installs) ─────────────────
+echo "Applying dotfiles..."
+if [[ -n "$DOTFILES_REPO" ]]; then
+    chezmoi init --no-tty --apply "$DOTFILES_REPO"
+else
+    chezmoi init --no-tty --apply --source "$SCRIPT_DIR"
+fi
+
+echo "Done. Dotfiles applied successfully."

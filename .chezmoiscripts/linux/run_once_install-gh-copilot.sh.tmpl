@@ -1,0 +1,39 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install GitHub CLI and Copilot extension on Linux (Debian/Ubuntu, Fedora/RHEL, Arch) and WSL
+set -euo pipefail
+
+# ── Install GitHub CLI ──────────────────────────────────────────────────────
+if ! command -v gh &>/dev/null; then
+    echo "Installing GitHub CLI..."
+    if command -v apt-get &>/dev/null; then
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+            | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+            | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+        sudo apt-get update -qq && sudo apt-get install -y -qq gh
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y -q gh
+    elif command -v yum &>/dev/null; then
+        sudo yum install -y -q gh
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -S --noconfirm --needed github-cli
+    elif command -v apk &>/dev/null; then
+        sudo apk add --quiet github-cli
+    else
+        echo "Error: No supported package manager found. Install gh manually."
+        exit 1
+    fi
+fi
+
+# ── Install Copilot CLI extension ───────────────────────────────────────────
+if ! gh extension list 2>/dev/null | grep -q "gh-copilot"; then
+    echo "Installing GitHub Copilot CLI extension..."
+    gh extension install github/gh-copilot || true
+else
+    echo "GitHub Copilot CLI extension is already installed."
+fi
+
+echo "GitHub CLI + Copilot installed successfully."
+{{ end -}}

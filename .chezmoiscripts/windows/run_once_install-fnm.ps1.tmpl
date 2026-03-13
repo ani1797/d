@@ -1,0 +1,23 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install fnm (Fast Node Manager) on Windows
+$ErrorActionPreference = "Stop"
+
+if (Get-Command fnm -ErrorAction SilentlyContinue) {
+    Write-Host "fnm is already installed."
+    exit 0
+}
+
+Write-Host "Installing fnm..."
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+    winget install --id Schniz.fnm --accept-source-agreements --accept-package-agreements --silent
+} elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
+    scoop install fnm
+} elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+    choco install fnm -y
+} else {
+    Write-Error "No supported package manager found (winget/scoop/choco). Install fnm manually."
+    exit 1
+}
+
+Write-Host "fnm installed successfully."
+{{ end -}}
