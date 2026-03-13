@@ -1,101 +1,55 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 
-// System tray — right side of bar (volume, battery indicator)
+// System tray — right side of bar (simple indicators)
 RowLayout {
     id: systemTray
-    spacing: 12
+    spacing: 16
 
-    // ── Volume ──────────────────────────────────────────────────────────
+    // ── Volume Indicator ────────────────────────────────────────────────
     Text {
         id: volumeIcon
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 14
-        color: "#c0caf5"
-        text: "󰕾"
-
-        property int volumeLevel: 50
-        property bool muted: false
-
-        function updateIcon() {
-            if (muted) {
-                text = "󰖁";
-                color = "#565f89";
-            } else if (volumeLevel > 66) {
-                text = "󰕾";
-                color = "#c0caf5";
-            } else if (volumeLevel > 33) {
-                text = "󰖀";
-                color = "#c0caf5";
-            } else if (volumeLevel > 0) {
-                text = "󰕿";
-                color = "#c0caf5";
-            } else {
-                text = "󰖁";
-                color = "#565f89";
-            }
-        }
+        color: "#7aa2f7"
+        text: "󰕾 VOL"
 
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
-            onClicked: volumeProcess.running = true
-        }
-
-        Process {
-            id: volumeProcess
-            command: ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]
-        }
-
-        // Poll volume level every 2 seconds
-        Process {
-            id: volumePoll
-            command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
-            running: true
-            onExited: {
-                var output = stdout.trim();
-                // Output format: "Volume: 0.50 [MUTED]"
-                var parts = output.split(" ");
-                if (parts.length >= 2) {
-                    volumeIcon.volumeLevel = Math.round(parseFloat(parts[1]) * 100);
-                    volumeIcon.muted = output.indexOf("MUTED") >= 0;
-                    volumeIcon.updateIcon();
-                }
-                volumePollTimer.restart();
+            onClicked: {
+                // Open volume control (pavucontrol)
+                Qt.createQmlObject('import Quickshell.Io; Process { command: ["pavucontrol"]; running: true }', parent, "volumeControl");
             }
-        }
-
-        Timer {
-            id: volumePollTimer
-            interval: 2000
-            running: true
-            repeat: false
-            onTriggered: volumePoll.running = true
         }
     }
 
     // ── Separator ───────────────────────────────────────────────────────
     Rectangle {
         width: 1
-        height: 16
+        height: 18
         color: "#24283b"
         Layout.alignment: Qt.AlignVCenter
     }
 
-    // ── Date + Time (compact) ───────────────────────────────────────────
+    // ── Date + Time ─────────────────────────────────────────────────────
     Text {
+        id: dateTimeText
         font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 12
-        color: "#565f89"
+        font.pixelSize: 13
+        color: "#c0caf5"
         text: Qt.formatDateTime(new Date(), "ddd d MMM")
 
         Timer {
             interval: 60000
             running: true
             repeat: true
-            onTriggered: parent.text = Qt.formatDateTime(new Date(), "ddd d MMM")
+            onTriggered: dateTimeText.text = Qt.formatDateTime(new Date(), "ddd d MMM")
+        }
+
+        Component.onCompleted: {
+            dateTimeText.text = Qt.formatDateTime(new Date(), "ddd d MMM")
         }
     }
 }

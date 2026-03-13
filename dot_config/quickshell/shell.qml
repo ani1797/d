@@ -18,9 +18,14 @@ ShellRoot {
                 right: true
             }
 
-            height: 34
+            height: 36
             color: "transparent"
             exclusionMode: ExclusionMode.Normal
+            margins {
+                top: 4
+                left: 4
+                right: 4
+            }
 
             Bar {
                 anchors.fill: parent

@@ -11,11 +11,12 @@ import QtQuick.Layouts
 Rectangle {
     id: bar
     color: "#1a1b26"
+    radius: 8
 
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 8
-        anchors.rightMargin: 8
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
         spacing: 0
 
         // ── Left: Workspaces ────────────────────────────────────────────

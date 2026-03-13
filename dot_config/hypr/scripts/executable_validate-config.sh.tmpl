@@ -1,0 +1,174 @@
+#!/bin/bash
+# validate-config.sh — Check Hyprland configuration for errors
+# Usage: ./validate-config.sh
+
+set -euo pipefail
+
+CONFIG_DIR="${HOME}/.config/hypr"
+ERRORS=0
+
+echo "🔍 Validating Hyprland configuration..."
+echo ""
+
+# ── Check main config file ──────────────────────────────────────────────
+echo "📄 Checking main config file..."
+if [[ ! -f "$CONFIG_DIR/hyprland.conf" ]]; then
+    echo "  ❌ Missing: hyprland.conf"
+    ERRORS=$((ERRORS + 1))
+else
+    echo "  ✓ Found: hyprland.conf"
+fi
+
+# ── Check conf.d modules ────────────────────────────────────────────────
+echo ""
+echo "📁 Checking configuration modules..."
+
+REQUIRED_MODULES=(
+    "env.conf"
+    "monitors.conf"
+    "input.conf"
+    "appearance.conf"
+    "keybinds.conf"
+    "windowrules.conf"
+    "autostart.conf"
+)
+
+for module in "${REQUIRED_MODULES[@]}"; do
+    if [[ ! -f "$CONFIG_DIR/conf.d/$module" ]]; then
+        echo "  ❌ Missing: conf.d/$module"
+        ERRORS=$((ERRORS + 1))
+    else
+        echo "  ✓ Found: conf.d/$module"
+    fi
+done
+
+# ── Check for deprecated syntax ─────────────────────────────────────────
+echo ""
+echo "🔎 Checking for deprecated syntax..."
+
+DEPRECATED_PATTERNS=(
+    "tap-to-click:tap_to_click"
+    "new_optimizations:removed in 0.54+"
+    "xray:removed in 0.54+"
+    "smart_resizing:removed in 0.54+"
+    "new_status:new_on_top"
+    "shadow {:drop_shadow ="
+)
+
+for pattern in "${DEPRECATED_PATTERNS[@]}"; do
+    old="${pattern%%:*}"
+    hint="${pattern#*:}"
+
+    if grep -rq "$old" "$CONFIG_DIR/conf.d/" 2>/dev/null; then
+        echo "  ⚠️  Deprecated: '$old' (use: $hint)"
+        ERRORS=$((ERRORS + 1))
+    fi
+done
+
+# ── Check quickshell ────────────────────────────────────────────────────
+echo ""
+echo "🖥️  Checking quickshell..."
+
+if command -v quickshell &>/dev/null; then
+    echo "  ✓ quickshell installed"
+
+    if [[ -f "$HOME/.config/quickshell/shell.qml" ]]; then
+        echo "  ✓ quickshell config found"
+    else
+        echo "  ❌ Missing: ~/.config/quickshell/shell.qml"
+        ERRORS=$((ERRORS + 1))
+    fi
+else
+    echo "  ⚠️  quickshell not installed"
+    echo "     Install with: yay -S quickshell-git"
+fi
+
+# ── Check required binaries ─────────────────────────────────────────────
+echo ""
+echo "🔧 Checking required binaries..."
+
+REQUIRED_BINS=(
+    "hyprctl:hyprland"
+    "rofi:rofi-wayland"
+    "mako:mako"
+    "grim:grim"
+    "slurp:slurp"
+    "wl-copy:wl-clipboard"
+    "brightnessctl:brightnessctl"
+    "playerctl:playerctl"
+)
+
+for entry in "${REQUIRED_BINS[@]}"; do
+    bin="${entry%%:*}"
+    pkg="${entry#*:}"
+
+    if command -v "$bin" &>/dev/null; then
+        echo "  ✓ $bin"
+    else
+        echo "  ❌ Missing: $bin (install: $pkg)"
+        ERRORS=$((ERRORS + 1))
+    fi
+done
+
+# ── Optional binaries ───────────────────────────────────────────────────
+echo ""
+echo "🔧 Checking optional binaries..."
+
+OPTIONAL_BINS=(
+    "hyprlock:hyprlock"
+    "hypridle:hypridle"
+    "hyprpaper:hyprpaper"
+    "swww:swww"
+    "hyprpicker:hyprpicker"
+    "pavucontrol:pavucontrol"
+)
+
+for entry in "${OPTIONAL_BINS[@]}"; do
+    bin="${entry%%:*}"
+    pkg="${entry#*:}"
+
+    if command -v "$bin" &>/dev/null; then
+        echo "  ✓ $bin"
+    else
+        echo "  ⚠️  Optional: $bin (install: $pkg)"
+    fi
+done
+
+# ── Check scripts ───────────────────────────────────────────────────────
+echo ""
+echo "📜 Checking helper scripts..."
+
+SCRIPTS=(
+    "snap-window.sh"
+    "switch-layout.sh"
+)
+
+for script in "${SCRIPTS[@]}"; do
+    script_path="$CONFIG_DIR/scripts/$script"
+    if [[ -f "$script_path" ]]; then
+        if [[ -x "$script_path" ]]; then
+            echo "  ✓ $script (executable)"
+        else
+            echo "  ⚠️  $script (not executable)"
+            echo "     Fix with: chmod +x $script_path"
+        fi
+    else
+        echo "  ❌ Missing: scripts/$script"
+        ERRORS=$((ERRORS + 1))
+    fi
+done
+
+# ── Summary ─────────────────────────────────────────────────────────────
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [[ $ERRORS -eq 0 ]]; then
+    echo "✅ Configuration validation passed!"
+    echo ""
+    echo "To reload config: hyprctl reload"
+    exit 0
+else
+    echo "❌ Found $ERRORS issue(s) in configuration"
+    echo ""
+    echo "Please fix the issues above and run this script again."
+    exit 1
+fi
