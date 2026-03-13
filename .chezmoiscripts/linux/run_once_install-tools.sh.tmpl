@@ -156,6 +156,13 @@ if ! install_pkg delta; then
     fi
 fi
 
+# ── yazi (Arch only) ─────────────────────────────────────────────────────────
+if command -v pacman &>/dev/null; then
+    if ! install_pkg yazi; then
+        sudo pacman -S --noconfirm --needed yazi && installed+=("yazi")
+    fi
+fi
+
 # ── Summary ─────────────────────────────────────────────────────────────────
 echo ""
 echo "=== CLI Tools Setup Complete ==="

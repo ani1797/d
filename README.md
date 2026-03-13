@@ -47,6 +47,7 @@ chezmoi apply
 | [eza](https://github.com/eza-community/eza) | ✅ | ✅ | ✅ |
 | [zoxide](https://github.com/ajeetdsouza/zoxide) | ✅ | ✅ | ✅ |
 | [delta](https://github.com/dandavison/delta) | ✅ | ✅ | ✅ |
+| [yazi](https://github.com/sxyazi/yazi) | ✅ (Arch) | — | — |
 
 ### Shells
 

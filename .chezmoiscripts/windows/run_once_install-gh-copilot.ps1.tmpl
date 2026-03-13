@@ -15,6 +15,14 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
         Write-Error "No supported package manager found (winget/scoop/choco). Install gh manually."
         exit 1
     }
+
+    # Refresh PATH so the newly installed gh is available in this session
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+
+    if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
+        Write-Error "GitHub CLI was installed but 'gh' is still not found in PATH. You may need to restart your shell."
+        exit 1
+    }
 }
 
 # ── Install Copilot CLI extension ───────────────────────────────────────────
