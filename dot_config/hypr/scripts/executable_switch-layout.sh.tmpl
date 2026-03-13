@@ -1,0 +1,20 @@
+#!/bin/bash
+# switch-layout.sh — Toggle between dwindle and master layouts
+# Usage: switch-layout.sh
+
+set -euo pipefail
+
+current=$(hyprctl getoption general:layout -j | jq -r '.str')
+
+if [[ "$current" == "dwindle" ]]; then
+    new_layout="master"
+else
+    new_layout="dwindle"
+fi
+
+hyprctl keyword general:layout "$new_layout"
+
+# Send notification if notify-send is available
+if command -v notify-send &>/dev/null; then
+    notify-send "Hyprland Layout" "Switched to $new_layout"
+fi

@@ -1,0 +1,103 @@
+#!/bin/bash
+# snap-window.sh — Snap the active window to a screen position
+# Usage: snap-window.sh <position>
+# Positions: left, right, top, bottom, topleft, topright, bottomleft, bottomright, center
+
+set -euo pipefail
+
+position="${1:-}"
+
+if [[ -z "$position" ]]; then
+    echo "Usage: $(basename "$0") <left|right|top|bottom|topleft|topright|bottomleft|bottomright|center>" >&2
+    exit 1
+fi
+
+# Get active monitor resolution and position
+monitor_json=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true)')
+mon_w=$(echo "$monitor_json" | jq -r '.width')
+mon_h=$(echo "$monitor_json" | jq -r '.height')
+mon_x=$(echo "$monitor_json" | jq -r '.x')
+mon_y=$(echo "$monitor_json" | jq -r '.y')
+scale=$(echo "$monitor_json" | jq -r '.scale')
+
+# Adjust for scale
+mon_w=$(awk "BEGIN {printf \"%d\", $mon_w / $scale}")
+mon_h=$(awk "BEGIN {printf \"%d\", $mon_h / $scale}")
+
+# Reserve bar height (adjust if needed)
+bar_h=0
+reserved=$(echo "$monitor_json" | jq -r '.reserved')
+if [[ "$reserved" != "null" ]]; then
+    bar_h=$(echo "$reserved" | jq -r '.[1]')
+fi
+
+# Calculate half dimensions
+half_w=$((mon_w / 2))
+half_h=$(((mon_h - bar_h) / 2))
+
+case "$position" in
+    left)
+        x=$mon_x
+        y=$((mon_y + bar_h))
+        w=$half_w
+        h=$((mon_h - bar_h))
+        ;;
+    right)
+        x=$((mon_x + half_w))
+        y=$((mon_y + bar_h))
+        w=$half_w
+        h=$((mon_h - bar_h))
+        ;;
+    top)
+        x=$mon_x
+        y=$((mon_y + bar_h))
+        w=$mon_w
+        h=$half_h
+        ;;
+    bottom)
+        x=$mon_x
+        y=$((mon_y + bar_h + half_h))
+        w=$mon_w
+        h=$half_h
+        ;;
+    topleft)
+        x=$mon_x
+        y=$((mon_y + bar_h))
+        w=$half_w
+        h=$half_h
+        ;;
+    topright)
+        x=$((mon_x + half_w))
+        y=$((mon_y + bar_h))
+        w=$half_w
+        h=$half_h
+        ;;
+    bottomleft)
+        x=$mon_x
+        y=$((mon_y + bar_h + half_h))
+        w=$half_w
+        h=$half_h
+        ;;
+    bottomright)
+        x=$((mon_x + half_w))
+        y=$((mon_y + bar_h + half_h))
+        w=$half_w
+        h=$half_h
+        ;;
+    center)
+        w=$((mon_w * 80 / 100))
+        h=$(((mon_h - bar_h) * 80 / 100))
+        x=$((mon_x + (mon_w - w) / 2))
+        y=$((mon_y + bar_h + (mon_h - bar_h - h) / 2))
+        ;;
+    *)
+        echo "Unknown position: $position" >&2
+        echo "Valid: left, right, top, bottom, topleft, topright, bottomleft, bottomright, center" >&2
+        exit 1
+        ;;
+esac
+
+# Ensure the window is floating before moving
+hyprctl dispatch setfloating
+hyprctl dispatch moveactive exact "$x" "$y"
+hyprctl dispatch resizeactive exact "$w" "$h"
