@@ -1,0 +1,23 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install Neovim on Windows
+$ErrorActionPreference = "Stop"
+
+if (Get-Command nvim -ErrorAction SilentlyContinue) {
+    Write-Host "Neovim is already installed."
+    exit 0
+}
+
+Write-Host "Installing Neovim..."
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+    winget install --id Neovim.Neovim --accept-package-agreements --accept-source-agreements
+} elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
+    scoop install neovim
+} elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+    choco install neovim -y
+} else {
+    Write-Error "No supported package manager found (winget, scoop, or chocolatey). Install Neovim manually: https://neovim.io"
+    exit 1
+}
+
+Write-Host "Neovim installed successfully."
+{{ end -}}

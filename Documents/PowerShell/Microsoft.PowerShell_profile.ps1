@@ -1,5 +1,13 @@
 # PowerShell profile
 
+# Neovim as default editor
+if (Get-Command nvim -ErrorAction SilentlyContinue) {
+    $env:EDITOR = "nvim"
+    $env:VISUAL = "nvim"
+    Set-Alias -Name vi -Value nvim
+    Set-Alias -Name vim -Value nvim
+}
+
 # fnm (Fast Node Manager)
 if (Get-Command fnm -ErrorAction SilentlyContinue) {
     fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
