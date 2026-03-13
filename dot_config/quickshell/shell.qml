@@ -18,17 +18,18 @@ ShellRoot {
                 right: true
             }
 
-            height: 36
+            height: 40
             color: "transparent"
-            exclusionMode: ExclusionMode.Normal
+            exclusionMode: ExclusionMode.Exclusive
             margins {
-                top: 4
-                left: 4
-                right: 4
+                top: 0
+                left: 0
+                right: 0
             }
 
             Bar {
                 anchors.fill: parent
+                anchors.margins: 4
             }
         }
     }
