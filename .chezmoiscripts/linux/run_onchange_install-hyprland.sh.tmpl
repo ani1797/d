@@ -105,8 +105,12 @@ AUR_PKGS=(
 if [[ -n "$AUR_HELPER" ]]; then
     aur_install=()
     for pkg in "${AUR_PKGS[@]}"; do
+        # Check if the package itself is installed
         if pacman -Qi "$pkg" &>/dev/null; then
             skipped+=("$pkg")
+        # For quickshell-git, also check if stable quickshell is installed
+        elif [[ "$pkg" == "quickshell-git" ]] && pacman -Qi "quickshell" &>/dev/null; then
+            skipped+=("quickshell (conflicts with quickshell-git)")
         else
             aur_install+=("$pkg")
         fi
