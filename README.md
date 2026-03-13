@@ -64,6 +64,8 @@ chezmoi apply
 | starship | ✅ | ✅ | ✅ | ✅ |
 | direnv | ✅ | ✅ | ✅ | — |
 | fnm | ✅ | ✅ | ✅ | ✅ |
+| fzf | ✅ | ✅ | ✅ | — |
+| eza/bat/zoxide | ✅ | ✅ | ✅ | — |
 
 ## Usage
 
