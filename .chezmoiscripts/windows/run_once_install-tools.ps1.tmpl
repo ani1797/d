@@ -1,9 +1,10 @@
 {{- if eq .chezmoi.os "windows" -}}
 # Install CLI tools on Windows
-# Tools: fzf, ripgrep, fd, bat, eza, zoxide, delta
+# Tools: git, fzf, ripgrep, fd, bat, eza, zoxide, delta
 $ErrorActionPreference = "Stop"
 
 $tools = @(
+    @{ Name = "git";     Winget = "Git.Git";                     Scoop = "git";       Choco = "git" }
     @{ Name = "fzf";     Winget = "junegunn.fzf";                Scoop = "fzf";       Choco = "fzf" }
     @{ Name = "rg";      Winget = "BurntSushi.ripgrep.MSVC";     Scoop = "ripgrep";   Choco = "ripgrep" }
     @{ Name = "fd";      Winget = "sharkdp.fd";                  Scoop = "fd";        Choco = "fd" }
