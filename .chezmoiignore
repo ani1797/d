@@ -18,3 +18,10 @@ Documents/
 .config/zsh/
 .config/direnv/
 {{- end }}
+
+{{- if not (and (hasKey . "hyprland") .hyprland) }}
+.config/hypr/
+.config/quickshell/
+.config/mako/
+.config/rofi/
+{{- end }}

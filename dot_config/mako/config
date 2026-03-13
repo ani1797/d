@@ -1,0 +1,55 @@
+# mako notification daemon — Tokyo Night theme
+# Docs: https://github.com/emersion/mako
+
+# ── Appearance ───────────────────────────────────────────────────────────────
+
+font=JetBrainsMono Nerd Font 10
+background-color=#24283b
+text-color=#c0caf5
+border-color=#7aa2f7
+border-size=2
+border-radius=8
+progress-color=over #33467c
+
+# ── Layout ───────────────────────────────────────────────────────────────────
+
+width=350
+height=100
+margin=8
+padding=12,16
+anchor=top-right
+layer=overlay
+max-visible=3
+sort=-time
+
+# ── Behavior ─────────────────────────────────────────────────────────────────
+
+default-timeout=5000
+ignore-timeout=0
+group-by=app-name
+icons=1
+max-icon-size=48
+icon-location=left
+markup=1
+actions=1
+history=1
+on-button-left=dismiss
+on-button-middle=none
+on-button-right=dismiss-all
+on-touch=dismiss
+
+# ── Urgency Overrides ───────────────────────────────────────────────────────
+
+[urgency=low]
+border-color=#565f89
+default-timeout=3000
+
+[urgency=high]
+border-color=#f7768e
+default-timeout=0
+
+[urgency=critical]
+background-color=#1a1b26
+border-color=#f7768e
+text-color=#f7768e
+default-timeout=0

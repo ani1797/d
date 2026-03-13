@@ -1,0 +1,168 @@
+{{- if and (eq .chezmoi.os "linux") (and (hasKey . "hyprland") .hyprland) -}}
+#!/usr/bin/env bash
+# Install Hyprland desktop environment on Arch Linux
+# Triggered by chezmoi data: hyprland = {{ .hyprland }}
+set -euo pipefail
+
+# ── Verify Arch Linux ───────────────────────────────────────────────────────
+
+if ! command -v pacman &>/dev/null; then
+    echo "Hyprland install requires Arch Linux (pacman not found). Skipping."
+    exit 0
+fi
+
+installed=()
+skipped=()
+
+install_pkg() {
+    local cmd="$1"
+    local pkg="$2"
+    if command -v "$cmd" &>/dev/null; then
+        skipped+=("$pkg")
+        return 1
+    fi
+    return 0
+}
+
+# ── Core Packages (pacman) ──────────────────────────────────────────────────
+
+PACMAN_PKGS=(
+    hyprland
+    xdg-desktop-portal-hyprland
+    rofi-wayland
+    mako
+    grim
+    slurp
+    wl-clipboard
+    cliphist
+    brightnessctl
+    playerctl
+    polkit-gnome
+    qt6-wayland
+    qt5-wayland
+)
+
+echo "Installing Hyprland ecosystem (Arch Linux)..."
+echo ""
+
+# Filter out already-installed packages
+to_install=()
+for pkg in "${PACMAN_PKGS[@]}"; do
+    if pacman -Qi "$pkg" &>/dev/null; then
+        skipped+=("$pkg")
+    else
+        to_install+=("$pkg")
+    fi
+done
+
+if [[ ${#to_install[@]} -gt 0 ]]; then
+    echo "Installing via pacman: ${to_install[*]}"
+    sudo pacman -S --noconfirm --needed "${to_install[@]}"
+    installed+=("${to_install[@]}")
+else
+    echo "All pacman packages already installed."
+fi
+
+# ── Optional pacman packages ────────────────────────────────────────────────
+
+OPTIONAL_PKGS=(
+    hyprpicker
+    hypridle
+    hyprlock
+    swww
+    wlsunset
+)
+
+opt_install=()
+for pkg in "${OPTIONAL_PKGS[@]}"; do
+    if pacman -Qi "$pkg" &>/dev/null; then
+        skipped+=("$pkg")
+    elif pacman -Si "$pkg" &>/dev/null 2>&1; then
+        opt_install+=("$pkg")
+    fi
+done
+
+if [[ ${#opt_install[@]} -gt 0 ]]; then
+    echo ""
+    echo "Installing optional tools: ${opt_install[*]}"
+    sudo pacman -S --noconfirm --needed "${opt_install[@]}"
+    installed+=("${opt_install[@]}")
+fi
+
+# ── AUR Packages (quickshell) ───────────────────────────────────────────────
+
+AUR_HELPER=""
+if command -v yay &>/dev/null; then
+    AUR_HELPER="yay"
+elif command -v paru &>/dev/null; then
+    AUR_HELPER="paru"
+fi
+
+AUR_PKGS=(
+    quickshell-git
+)
+
+if [[ -n "$AUR_HELPER" ]]; then
+    aur_install=()
+    for pkg in "${AUR_PKGS[@]}"; do
+        if pacman -Qi "$pkg" &>/dev/null; then
+            skipped+=("$pkg")
+        else
+            aur_install+=("$pkg")
+        fi
+    done
+
+    if [[ ${#aur_install[@]} -gt 0 ]]; then
+        echo ""
+        echo "Installing AUR packages via $AUR_HELPER: ${aur_install[*]}"
+        "$AUR_HELPER" -S --noconfirm --needed "${aur_install[@]}"
+        installed+=("${aur_install[@]}")
+    fi
+else
+    echo ""
+    echo "⚠  No AUR helper found (yay or paru). The following AUR packages must be installed manually:"
+    for pkg in "${AUR_PKGS[@]}"; do
+        if ! pacman -Qi "$pkg" &>/dev/null; then
+            echo "   - $pkg"
+        fi
+    done
+    echo ""
+    echo "  Install an AUR helper:"
+    echo "    sudo pacman -S --needed git base-devel"
+    echo "    git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si"
+    echo ""
+    echo "  Then re-run: chezmoi apply"
+fi
+
+# ── Create local.conf if missing ────────────────────────────────────────────
+
+LOCAL_CONF="$HOME/.config/hypr/local.conf"
+if [[ ! -f "$LOCAL_CONF" ]]; then
+    mkdir -p "$(dirname "$LOCAL_CONF")"
+    cat > "$LOCAL_CONF" <<'LOCALEOF'
+# Machine-specific Hyprland overrides
+# This file is NOT managed by chezmoi — edit freely.
+#
+# Examples:
+#   monitor = DP-1, 2560x1440@144, 0x0, 1
+#   exec-once = hyprpaper
+#   input { kb_options = caps:escape }
+LOCALEOF
+    echo ""
+    echo "Created $LOCAL_CONF for machine-specific overrides."
+fi
+
+# ── Summary ─────────────────────────────────────────────────────────────────
+
+echo ""
+echo "=== Hyprland Desktop Setup Complete ==="
+if [[ ${#installed[@]} -gt 0 ]]; then
+    echo "Installed: ${installed[*]}"
+fi
+if [[ ${#skipped[@]} -gt 0 ]]; then
+    echo "Already present: ${skipped[*]}"
+fi
+echo ""
+echo "Start Hyprland from a TTY with: Hyprland"
+echo "Config: ~/.config/hypr/  |  Override: ~/.config/hypr/local.conf"
+{{ end -}}

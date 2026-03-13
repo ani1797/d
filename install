@@ -74,6 +74,7 @@ if [[ ! -f "$CHEZMOI_CONFIG_DIR/chezmoi.toml" ]]; then
 [data]
     name = "$DOTFILES_NAME"
     email = "$DOTFILES_EMAIL"
+    hyprland = false
 EOF
 fi
 
