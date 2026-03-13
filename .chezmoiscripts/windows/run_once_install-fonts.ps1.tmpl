@@ -1,3 +1,4 @@
+{{- if eq .chezmoi.os "windows" -}}
 # Install Nerd Fonts on Windows
 # Requires PowerShell 5.1+ and admin privileges for system-wide install
 
@@ -57,3 +58,4 @@ try {
     if (Test-Path $tempZip) { Remove-Item $tempZip -Force }
     if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 }
+{{ end -}}

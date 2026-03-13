@@ -1,3 +1,4 @@
+{{- if eq .chezmoi.os "linux" -}}
 #!/bin/bash
 # Install Nerd Fonts on Linux
 
@@ -29,3 +30,4 @@ cd -
 rm -rf "$TMP_DIR"
 
 echo "JetBrainsMono Nerd Font installed successfully"
+{{ end -}}

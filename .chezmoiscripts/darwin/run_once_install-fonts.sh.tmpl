@@ -1,3 +1,4 @@
+{{- if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
 # Install Nerd Fonts on macOS
 
@@ -15,3 +16,4 @@ fi
 brew install --cask font-jetbrains-mono-nerd-font
 
 echo "JetBrainsMono Nerd Font installed successfully"
+{{ end -}}
