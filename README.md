@@ -40,6 +40,13 @@ chezmoi apply
 | [uv](https://github.com/astral-sh/uv) | ✅ | ✅ | ✅ |
 | [gh + Copilot](https://cli.github.com/) | ✅ | ✅ | ✅ |
 | [tmux](https://github.com/tmux/tmux) | ✅ | ✅ | — (WSL) |
+| [fzf](https://github.com/junegunn/fzf) | ✅ | ✅ | ✅ |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | ✅ | ✅ | ✅ |
+| [fd](https://github.com/sharkdp/fd) | ✅ | ✅ | ✅ |
+| [bat](https://github.com/sharkdp/bat) | ✅ | ✅ | ✅ |
+| [eza](https://github.com/eza-community/eza) | ✅ | ✅ | ✅ |
+| [zoxide](https://github.com/ajeetdsouza/zoxide) | ✅ | ✅ | ✅ |
+| [delta](https://github.com/dandavison/delta) | ✅ | ✅ | ✅ |
 
 ### Shells
 
