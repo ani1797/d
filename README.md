@@ -49,6 +49,24 @@ chezmoi apply
 | [delta](https://github.com/dandavison/delta) | ✅ | ✅ | ✅ |
 | [yazi](https://github.com/sxyazi/yazi) | ✅ (Arch) | — | — |
 
+### Terminal Emulators
+
+| Terminal | Linux | macOS | Windows |
+|----------|:-----:|:-----:|:-------:|
+| [kitty](https://sw.kovidgoyal.net/kitty/) | ✅ | ✅ | — |
+| [alacritty](https://alacritty.org/) | ✅ | ✅ | ✅ |
+| [ghostty](https://ghostty.org/) | ✅ | ✅ | ✅ |
+
+All terminal configurations use the Tokyo Night theme to match the overall system aesthetic.
+
+### Fonts
+
+| Font | Linux | macOS | Windows |
+|------|:-----:|:-----:|:-------:|
+| [JetBrainsMono Nerd Font](https://www.nerdfonts.com/) | ✅ | ✅ | ✅ |
+
+Fonts are automatically installed via chezmoi scripts on first setup.
+
 ### Shells
 
 | Shell | Linux | macOS | Windows |

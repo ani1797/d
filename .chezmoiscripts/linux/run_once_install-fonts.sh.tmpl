@@ -1,0 +1,31 @@
+#!/bin/bash
+# Install Nerd Fonts on Linux
+
+set -e
+
+echo "Installing JetBrainsMono Nerd Font..."
+
+# Create fonts directory
+FONT_DIR="$HOME/.local/share/fonts"
+mkdir -p "$FONT_DIR"
+
+# Download and install JetBrainsMono Nerd Font
+FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+TMP_DIR=$(mktemp -d)
+
+cd "$TMP_DIR"
+curl -fLo "JetBrainsMono.zip" "$FONT_URL"
+unzip -q "JetBrainsMono.zip" -d "$FONT_DIR/JetBrainsMono"
+rm -f "JetBrainsMono.zip"
+
+# Update font cache
+if command -v fc-cache >/dev/null 2>&1; then
+    fc-cache -f "$FONT_DIR"
+    echo "Font cache updated"
+fi
+
+# Clean up
+cd -
+rm -rf "$TMP_DIR"
+
+echo "JetBrainsMono Nerd Font installed successfully"

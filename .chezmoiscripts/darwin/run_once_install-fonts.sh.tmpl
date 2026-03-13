@@ -1,0 +1,17 @@
+#!/bin/bash
+# Install Nerd Fonts on macOS
+
+set -e
+
+echo "Installing JetBrainsMono Nerd Font..."
+
+# Check if Homebrew is available
+if ! command -v brew >/dev/null 2>&1; then
+    echo "Error: Homebrew is required but not installed"
+    exit 1
+fi
+
+# Install font via Homebrew Cask
+brew install --cask font-jetbrains-mono-nerd-font
+
+echo "JetBrainsMono Nerd Font installed successfully"

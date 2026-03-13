@@ -1,0 +1,111 @@
+# Alacritty Configuration — Tokyo Night Theme
+# Matches Hyprland, mako, nvim, and starship theme
+
+[env]
+TERM = "xterm-256color"
+
+[window]
+padding.x = 8
+padding.y = 8
+dynamic_padding = false
+decorations = "full"
+opacity = 1.0
+startup_mode = "Windowed"
+blur = true
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[font]
+normal.family = "JetBrainsMono Nerd Font"
+bold.family = "JetBrainsMono Nerd Font"
+italic.family = "JetBrainsMono Nerd Font"
+bold_italic.family = "JetBrainsMono Nerd Font"
+size = 12.0
+
+[font.offset]
+x = 0
+y = 0
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+# Tokyo Night Color Scheme
+[colors.primary]
+background = "#1a1b26"
+foreground = "#c0caf5"
+
+[colors.cursor]
+text = "#1a1b26"
+cursor = "#c0caf5"
+
+[colors.selection]
+text = "#c0caf5"
+background = "#33467c"
+
+[colors.normal]
+black = "#15161e"
+red = "#f7768e"
+green = "#9ece6a"
+yellow = "#e0af68"
+blue = "#7aa2f7"
+magenta = "#bb9af7"
+cyan = "#7dcfff"
+white = "#a9b1d6"
+
+[colors.bright]
+black = "#414868"
+red = "#f7768e"
+green = "#9ece6a"
+yellow = "#e0af68"
+blue = "#7aa2f7"
+magenta = "#bb9af7"
+cyan = "#7dcfff"
+white = "#c0caf5"
+
+[colors.vi_mode_cursor]
+text = "#1a1b26"
+cursor = "#bb9af7"
+
+[colors.search.matches]
+foreground = "#1a1b26"
+background = "#e0af68"
+
+[colors.search.focused_match]
+foreground = "#1a1b26"
+background = "#9ece6a"
+
+[colors.line_indicator]
+foreground = "None"
+background = "None"
+
+[colors.footer_bar]
+foreground = "#c0caf5"
+background = "#24283b"
+
+[bell]
+animation = "EaseOutExpo"
+duration = 0
+color = "#ffffff"
+
+[cursor.style]
+shape = "Block"
+blinking = "Off"
+
+[mouse]
+hide_when_typing = true
+
+[[mouse.bindings]]
+mouse = "Middle"
+action = "PasteSelection"
+
+[keyboard]
+bindings = [
+    { key = "V", mods = "Control|Shift", action = "Paste" },
+    { key = "C", mods = "Control|Shift", action = "Copy" },
+    { key = "Plus", mods = "Control", action = "IncreaseFontSize" },
+    { key = "Minus", mods = "Control", action = "DecreaseFontSize" },
+    { key = "Key0", mods = "Control", action = "ResetFontSize" },
+]
