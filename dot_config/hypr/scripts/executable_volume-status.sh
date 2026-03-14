@@ -15,8 +15,8 @@ else
     VOLUME=$(echo "$VOLUME_INFO" | awk '{print $2}')
 fi
 
-# Convert to percentage
-PERCENT=$(echo "$VOLUME * 100" | bc | cut -d. -f1)
+# Convert to percentage (using awk instead of bc for portability)
+PERCENT=$(echo "$VOLUME" | awk '{printf "%.0f", $1 * 100}')
 
 # Select icon based on volume level and mute state
 if [ "$MUTED" = true ]; then
