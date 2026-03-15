@@ -3,6 +3,9 @@
 # If not running interactively, don't do anything
 status is-interactive; or return
 
+# Disable welcome message
+set -g fish_greeting
+
 # XDG Base Directory defaults
 set -q XDG_CONFIG_HOME; or set -gx XDG_CONFIG_HOME $HOME/.config
 
