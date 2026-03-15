@@ -89,7 +89,6 @@ return {
       end
 
       -- Server configs
-      local lspconfig = require("lspconfig")
       local servers = {
         lua_ls = {
           settings = {
@@ -104,7 +103,8 @@ return {
 
       for server, config in pairs(servers) do
         config.capabilities = vim.tbl_deep_extend("force", capabilities, config.capabilities or {})
-        lspconfig[server].setup(config)
+        vim.lsp.config[server] = config
+        vim.lsp.enable(server)
       end
     end,
   },
